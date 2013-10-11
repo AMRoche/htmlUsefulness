@@ -1,0 +1,606 @@
+<!DOCTYPE HTML>
+
+<html>
+	<body>
+		<style>
+			*, *:before, *:after {
+				-moz-box-sizing: border-box;
+				*behavior: url(styles/boxsizing.htc);
+				-webkit-box-sizing: border-box;
+				*behavior: url(styles/boxsizing.htc);
+				box-sizing: border-box;
+				*behavior: url(styles/boxsizing.htc);
+			}
+			.tooltipContainer {
+				width:200px;
+				position: absolute;
+				display: block;
+				text-decoration: none;
+				border-radius:3px;
+			}
+			.tooltipContainer .tooltipTextContainer{
+				background-color:transparent;
+			}
+			.tooltipContainer .tooltipTextContainer .tooltipInnards {
+				background-color:#FEFEF2;
+				
+				color:black;
+			}
+			.tooltipContainer .arrowHolder {
+				overflow: hidden;
+				position: relative;
+			}
+			.tooltipContainer .arrowHolder .outerArrow{
+			}
+			.tooltipContainer .arrowHolder .innerArrow{
+				color:#FEFEF2;
+			}
+		</style>
+		<div></div>
+		<ul>
+			<li>
+				<a href="http://reddit.com">reddit</a>
+			</li>
+			<li>
+				<a href="http://9gag.com">9gag</a>
+			</li>
+			<li>
+				<a href="http://news.ycombinator.com">hackernews</a>
+			</li>
+			<li>
+				<a href="http://reddit.com">reddit</a>
+			</li>
+		</ul>
+		<script type="text/javascript">
+			var colours = {//colours for the tooltips.
+				//"backgroundColour" : "red",
+				//"textColour" : "blue",
+				//"borderColour" : "teal",
+				"transitions":false,
+				"borderWidth" : 0,
+				"pointerWidth" : 10,
+				"pointerHeight" : 10,
+				"distanceAcrossPercentage" : 50,
+				"width" : 200
+			};
+			var defaults = { //if you leave one of the above out, it gets substituted to these.
+				"backgroundColour" : "white",
+				"textColour" : "gray",
+				"borderColour" : "gold",
+				"borderWidth" : 10,
+				"pointerWidth" : 10,
+				"pointerHeight" : 10,
+				"distanceAcrossPercentage" : 0,
+				"width":200
+			}
+
+			var types = {//types and text associated therewith.
+				"payment" : "We're going to redirect you to an external payment site.",
+				"email" : "Clicking this link will send us emails.",
+				"social" : "This is for your own time, fool."
+			};
+			var linkType = {//domain and text associated with. Some presets above.
+				"reddit" : types.social,
+				"9gag" : types.payment
+			};
+			var isDefined = function(toCheck) {
+				if (toCheck != undefined && toCheck != null) {
+					return true;
+				}
+				return false;
+			}
+			var createToolTip = function(internalText, tagToSetAgainst,ievent) {
+				var containerDiv = document.createElement("div");
+				containerDiv.setAttribute("class", "tooltipContainer");
+		        if(isDefined(colours.width)){
+		        	//containerDiv.style.width = colours.width+"px";
+		        }
+		        else{
+		        	//containerDiv.style.width = "100px";
+		        }
+				var textContainer = document.createElement("div");
+				textContainer.setAttribute("class", "tooltipTextContainer");
+				if (isDefined(colours.borderColour)) {
+				//	textContainer.style.backgroundColor = colours.borderColour;
+				} else {
+				//	textContainer.style.backgroundColor = "rgb(0,0,0)";
+				}
+				if (isDefined(colours.borderWidth)) {
+					textContainer.style.padding = colours.borderWidth + "px";
+				} else {
+					textContainer.style.padding = "5px";
+				}
+				var tooltipInnards = document.createElement("div");
+				tooltipInnards.setAttribute("class", "tooltipInnards");
+				tooltipInnards.innerHTML = internalText;
+				/*if (isDefined(colours.backgroundColour)) {
+					tooltipInnards.style.backgroundColor = colours.backgroundColour;
+				} else {
+					tooltipInnards.style.backgroundColor = "rgb(255,255,255)";
+				}*/
+				if (isDefined(colours.textColour)) {
+					//tooltipInnards.style.color = colours.textColour;
+				} else {
+					//tooltipInnards.style.color = "rgb(0,0,0)";
+				}
+				var wide = {
+					x : 0,
+					y : 0
+				};
+				//			containerDiv.appendChild(outey);
+				if (isDefined(colours.pointerWidth)) {
+					wide.x = colours.pointerWidth;
+				} else {
+					wide.x = 10;
+				}
+				if (isDefined(colours.pointerHeight)) {
+					wide.y = colours.pointerHeight;
+				} else {
+					wide.y = 10;
+				}
+				var arrowContainer = document.createElement("div");
+				arrowContainer.setAttribute("class", "arrowHolder");
+				arrowContainer.setAttribute("width", wide.x + "px");
+				arrowContainer.setAttribute("height", wide.y + "px");
+				var outey = createOuterArrow();
+				var inney = createInnerArrow();
+				arrowContainer.appendChild(outey);
+				arrowContainer.appendChild(inney);
+				textContainer.appendChild(tooltipInnards);
+				containerDiv.appendChild(textContainer);
+				
+				if(isDefined(colours.borderWidth)){
+					arrowContainer.style.top = -1*colours.borderWidth+"px";
+				}
+				else{
+					arrowContainer.style.top = "-10px";
+				}
+				
+				containerDiv.appendChild(arrowContainer);
+				//				containerDiv.appendChild(inney);
+				tagToSetAgainst.appendChild(containerDiv);
+				containerDiv.addEventListener("click", function(e) {
+					e.preventDefault()
+				});
+				var shuntLeft;
+				if(isDefined(colours.distanceAcrossPercentage)){
+					if(isDefined(colours.borderWidth)){
+						arrowContainer.style.left = colours.borderWidth+ ((containerDiv.offsetWidth -(colours.borderWidth*3)) * (colours.distanceAcrossPercentage/100))  + "px";					
+					}
+					else{
+						arrowContainer.style.left = 10+ ((containerDiv.offsetWidth -(10*3)) * (colours.distanceAcrossPercentage/100))  + "px";
+					}
+				}else{
+					arrowContainer.style.left = 10+ ((containerDiv.offsetWidth -(10*3)) * (0/100))  + "px";
+				}
+				
+				if(isDefined(colours.distanceAcrossPercentage)){
+					//containerDiv.style.left = containerDiv.offsetWidth * (colours.distanceAcrossPercentage/100)* -1+"px";
+					containerDiv.style.left = "0px";
+				}
+				var shuntLeft = parseInt(arrowContainer.style.left.substring(0,arrowContainer.style.left.length-2),10) ;
+				console.log(tagToSetAgainst.offsetWidth);
+					containerDiv.style.left = (tagToSetAgainst.offsetLeft-(shuntLeft)+tagToSetAgainst.offsetWidth/2)+"px";
+				console.log(tagToSetAgainst);
+				if(isDefined(colours.pointerHeight)){
+				containerDiv.style.top = (tagToSetAgainst.offsetTop - containerDiv.offsetHeight+colours.pointerHeight)+"px";
+				}
+				else{
+				containerDiv.style.top = (tagToSetAgainst.offsetTop - containerDiv.offsetHeight+10)+"px";
+				}
+				console.log(tagToSetAgainst + " has text \"" + internalText + "\"");
+			}
+			var createInnerArrow = function() {
+				var outerArrow = document.createElement("div");
+				outerArrow.setAttribute("class", "innerArrow");
+				outerArrow.style.backgroundColor = "transparent";
+				outerArrow.style.width = "0px";
+				outerArrow.style.height = "0px";
+				outerArrow.style.position = "relative";
+				if (isDefined(colours.pointerWidth)) {
+					outerArrow.style.borderRight = (colours.pointerWidth / 2) + "px solid";
+					outerArrow.style.borderLeft = (colours.pointerWidth / 2) + "px solid";
+				} else {
+					outerArrow.style.borderRight = "5px solid";
+					outerArrow.style.borderLeft = "5px solid";
+				}
+				if (isDefined(colours.pointerHeight)) {
+					outerArrow.style.borderTop = (colours.pointerHeight) + "px solid";
+				} else {
+					outerArrow.style.borderTop = "10px solid";
+				}
+				if (isDefined(colours.borderWidth)) {
+					if (isDefined(colours.pointerHeight)) {
+						outerArrow.style.top = -1 * colours.pointerHeight - colours.borderWidth / 2 + "px";
+					} else {
+						outerArrow.style.top = -1 * (colours.borderWidth / 2) - 10 + "px";
+					}
+				} else {
+					outerArrow.style.top = "-10px";
+				}
+			//	if (isDefined(colours.backgroundColour)) {
+					outerArrow.style.borderBottomColor = "transparent";
+					outerArrow.style.borderRightColor = "transparent";
+					outerArrow.style.borderLeftColor = "transparent";
+				//	outerArrow.style.borderTopColor = colours.backgroundColour;
+				//} else {
+				//	outerArrow.style.borderBottomColor = "transparent";
+				//	outerArrow.style.borderRightColor = "transparent";
+				//	outerArrow.style.borderLeftColor = "transparent";
+				//	outerArrow.style.borderTopColor = "rgb(255,255,255)";
+				//}
+				outerArrow.style.borderBottom = "0px solid transparent";
+				return outerArrow;
+			}
+			var createOuterArrow = function() {
+				var outerArrow = document.createElement("div");
+				outerArrow.setAttribute("class", "outerArrow");
+				outerArrow.style.backgroundColor = "transparent";
+				outerArrow.style.width = "0px";
+				outerArrow.style.height = "0px";
+				outerArrow.style.position = "relative";
+				if (isDefined(colours.pointerWidth)) {
+					outerArrow.style.borderRight = (colours.pointerWidth / 2) + "px solid";
+					outerArrow.style.borderLeft = (colours.pointerWidth / 2) + "px solid";
+				} else {
+					outerArrow.style.borderRight = "5px solid";
+					outerArrow.style.borderLeft = "5px solid";
+				}
+				if (isDefined(colours.pointerHeight)) {
+					outerArrow.style.borderTop = (colours.pointerHeight) + "px solid";
+				} else {
+					outerArrow.style.borderTop = "10px solid";
+				}
+				if (isDefined(colours.borderWidth)) {
+					outerArrow.style.top = colours.borderWidth + "px";
+				} else {
+					outerArrow.style.top = "10px";
+				}
+
+				//if (isDefined(colours.borderColour)) {
+					outerArrow.style.borderBottomColor = "transparent";
+					outerArrow.style.borderRightColor = "transparent";
+					outerArrow.style.borderLeftColor = "transparent";
+					if(isDefined(colours.borderWidth)){
+						if(colours.borderWidth == 0){
+							outerArrow.style.borderTopColor = "transparent";
+						}	
+					}
+				//	outerArrow.style.borderTopColor = colours.borderColour;
+				/*} else {
+					outerArrow.style.borderBottomColor = "transparent";
+					outerArrow.style.borderRightColor = "transparent";
+					outerArrow.style.borderLeftColor = "transparent";
+					outerArrow.style.borderTopColor = "rgb(0,0,0)";
+
+				}*/
+
+				outerArrow.style.borderBottom = "0px solid transparent";
+				return outerArrow;
+			}
+			var removeToolTip = function(tagToRemoveFrom) {
+				var elements = document.getElementsByClassName("tooltipContainer");
+				for (var i = 0; i < elements.length; i++) {
+					console.log(i);
+					console.log(elements[i].parentNode);
+					console.log(tagToRemoveFrom);
+					if (elements[i].parentNode == tagToRemoveFrom) {
+						tagToRemoveFrom.removeChild(elements[i]);
+						i++;
+					}
+				}
+			}
+			var addEventListenerToTags = function(tag, content) {
+				tag.addEventListener("mouseover", function(e) {
+					createToolTip(content, tag,e)
+				});
+				tag.addEventListener("mouseout", function() {
+					removeToolTip(tag)
+				});
+			}
+			var tag = "";
+			var tags = document.getElementsByTagName("a");
+			for (var i = 0; i < tags.length; i++) {
+				for (var j in linkType) {
+					if (linkType.hasOwnProperty(j)) {
+						if (tags[i].href.indexOf(j) > -1) {
+							addEventListenerToTags(tags[i], linkType[j]);
+						}
+					}
+				}
+			}
+
+			if (!Array.prototype.indexOf) {
+				Array.prototype.indexOf = function(elt /*, from*/) {
+					var len = this.length >>> 0;
+					var from = Number(arguments[1]) || 0;
+					from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+					if (from < 0)
+						from += len;
+
+					for (; from < len; from++) {
+						if ( from in this && this[from] === elt)
+							return from;
+					}
+					return -1;
+				};
+			}
+		</script>
+		<script type="text/javascript">
+			//addEventListener PolyFill
+			// EventListener | MIT/GPL2 | github.com/jonathantneal/EventListener
+
+			this.Element && Element.prototype.attachEvent && !Element.prototype.addEventListener && (function() {
+				function addToPrototype(name, method) {
+					Window.prototype[name] = HTMLDocument.prototype[name] = Element.prototype[name] = method;
+				}
+
+				// add
+				addToPrototype("addEventListener", function(type, listener) {
+					var target = this, listeners = target.addEventListener.listeners = target.addEventListener.listeners || {}, typeListeners = listeners[type] = listeners[type] || [];
+
+					// if no events exist, attach the listener
+					if (!typeListeners.length) {
+						target.attachEvent("on" + type, typeListeners.event = function(event) {
+							var documentElement = target.document && target.document.documentElement || target.documentElement || {
+								scrollLeft : 0,
+								scrollTop : 0
+							};
+
+							// polyfill w3c properties and methods
+							event.currentTarget = target;
+							event.pageX = event.clientX + documentElement.scrollLeft;
+							event.pageY = event.clientY + documentElement.scrollTop;
+							event.preventDefault = function() {
+								event.returnValue = false
+							};
+							event.relatedTarget = event.fromElement || null;
+							event.stopImmediatePropagation = function() {
+								immediatePropagation = false;
+								event.cancelBubble = true
+							};
+							event.stopPropagation = function() {
+								event.cancelBubble = true
+							};
+							event.target = event.srcElement || target;
+							event.timeStamp = +new Date;
+
+							// create an cached list of the master events list (to protect this loop from breaking when an event is removed)
+							for (var i = 0, typeListenersCache = [].concat(typeListeners), typeListenerCache, immediatePropagation = true; immediatePropagation && ( typeListenerCache = typeListenersCache[i]); ++i) {
+								// check to see if the cached event still exists in the master events list
+								for (var ii = 0, typeListener; typeListener = typeListeners[ii]; ++ii) {
+									if (typeListener == typeListenerCache) {
+										typeListener.call(target, event);
+
+										break;
+									}
+								}
+							}
+						});
+					}
+
+					// add the event to the master event list
+					typeListeners.push(listener);
+				});
+
+				// remove
+				addToPrototype("removeEventListener", function(type, listener) {
+					var target = this, listeners = target.addEventListener.listeners = target.addEventListener.listeners || {}, typeListeners = listeners[type] = listeners[type] || [];
+
+					// remove the newest matching event from the master event list
+					for (var i = typeListeners.length - 1, typeListener; typeListener = typeListeners[i]; --i) {
+						if (typeListener == listener) {
+							typeListeners.splice(i, 1);
+
+							break;
+						}
+					}
+
+					// if no events exist, detach the listener
+					if (!typeListeners.length && typeListeners.event) {
+						target.detachEvent("on" + type, typeListeners.event);
+					}
+				});
+
+				// dispatch
+				addToPrototype("dispatchEvent", function(eventObject) {
+					var target = this, type = eventObject.type, listeners = target.addEventListener.listeners = target.addEventListener.listeners || {}, typeListeners = listeners[type] = listeners[type] || [];
+
+					try {
+						return target.fireEvent("on" + type, eventObject);
+					} catch (error) {
+						if (typeListeners.event) {
+							typeListeners.event(eventObject);
+						}
+
+						return;
+					}
+				});
+
+				// CustomEvent
+				Object.defineProperty(Window.prototype, "CustomEvent", {
+					get : function() {
+						var self = this;
+
+						return function CustomEvent(type, eventInitDict) {
+							var event = self.document.createEventObject(), key;
+
+							event.type = type;
+							for (key in eventInitDict) {
+								if (key == 'cancelable') {
+									event.returnValue = !eventInitDict.cancelable;
+								} else if (key == 'bubbles') {
+									event.cancelBubble = !eventInitDict.bubbles;
+								} else if (key == 'detail') {
+									event.detail = eventInitDict.detail;
+								}
+							}
+							return event;
+						};
+					}
+				});
+
+				// ready
+				function ready(event) {
+					if (ready.interval && document.body) {
+						ready.interval = clearInterval(ready.interval);
+
+						document.dispatchEvent(new CustomEvent("DOMContentLoaded"));
+					}
+				}
+
+
+				ready.interval = setInterval(ready, 1);
+
+				window.addEventListener("load", ready);
+			})();
+		</script>
+		<script type="text/javascript">
+			//old school functionality of event listeners
+			!this.addEventListener && this.attachEvent && (function(window, document) {
+				var registry = [];
+
+				// add
+				function addEventListener(type, listener) {
+					var target = this;
+
+					registry.unshift({
+						__listener : function(event) {
+							event.currentTarget = target;
+							event.pageX = event.clientX + document.documentElement.scrollLeft;
+							event.pageY = event.clientY + document.documentElement.scrollTop;
+							event.preventDefault = function() {
+								event.returnValue = false
+							};
+							event.relatedTarget = event.fromElement || null;
+							event.stopPropagation = function() {
+								event.cancelBubble = true
+							};
+							event.relatedTarget = event.fromElement || null;
+							event.target = event.srcElement || target;
+							event.timeStamp = +new Date;
+
+							listener.call(target, event);
+						},
+						listener : listener,
+						target : target,
+						type : type
+					});
+
+					target.attachEvent("on" + type, registry[0].__listener);
+				}
+
+				// remove
+				function removeEventListener(type, listener) {
+					for (var index = 0, length = registry.length; index < length; ++index) {
+						if (registry[index].target == this && registry[index].type == type && registry[index].listener == listener) {
+							return this.detachEvent("on" + type, registry.splice(index, 1)[0].__listener);
+						}
+					}
+				}
+
+				// dispatch
+				function dispatchEvent(eventObject) {
+					try {
+						return this.fireEvent("on" + eventObject.type, eventObject);
+					} catch (error) {
+						for (var index = 0, length = registry.length; index < length; ++index) {
+							if (registry[index].target == this && registry[index].type == eventObject.type) {
+								registry[index].__listener.call(this, eventObject);
+							}
+						}
+					}
+				}
+
+				// custom
+				function CustomEvent(type, canBubble, cancelable, detail) {
+					var event = document.createEventObject(), key;
+
+					event.type = type;
+					event.returnValue = !cancelable;
+					event.cancelBubble = !canBubble;
+
+					for (key in detail) {
+						event[key] = detail[key];
+					}
+
+					return event;
+				}
+
+				function _patchNode(node) {
+					if (node.dispatchEvent) {
+						return;
+					}
+
+					node.addEventListener = addEventListener;
+					node.removeEventListener = removeEventListener;
+					node.dispatchEvent = dispatchEvent;
+
+					var appendChild = node.appendChild, createElement = node.createElement, insertBefore = node.insertBefore;
+
+					if (appendChild) {
+						node.appendChild = function(node) {
+							var returnValue = appendChild(node);
+
+							_patchNodeList(node.all);
+
+							return returnValue;
+						};
+					}
+
+					if (createElement) {
+						node.createElement = function(nodeName) {
+							var returnValue = createElement(nodeName);
+
+							_patchNodeList(node.all);
+
+							return returnValue;
+						};
+					}
+
+					if (insertBefore) {
+						node.insertBefore = function(node, referenceElement) {
+							var returnValue = insertBefore(node, referenceElement);
+
+							_patchNodeList(node.all);
+
+							return returnValue;
+						};
+					}
+
+					if ("innerHTML" in node) {
+						node.attachEvent("onpropertychange", function(event) {
+							if (event.propertyName != "innerHTML")
+								return;
+
+							_patchNodeList(node.all);
+						});
+					}
+				}
+
+				function _patchNodeList(nodeList) {
+					for (var i = 0, node; node = nodeList[i]; ++i) {
+						_patchNode(node);
+					}
+				}
+
+
+				document.attachEvent("onreadystatechange", function(event) {
+					if (document.readyState == "complete") {
+						_patchNodeList(document.all);
+
+						// ready
+						document.dispatchEvent(new CustomEvent("DOMContentLoaded", false, false));
+					}
+				});
+
+				_patchNode(window);
+				_patchNode(document);
+
+				_patchNodeList(document.all);
+
+				window.CustomEvent = CustomEvent;
+			})(this, document);
+		</script>
+	</body>
+</html>

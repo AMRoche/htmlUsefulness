@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+
+<html>
+	<body>
+		<style>
+		*,*:before,*:after{
+		  	-moz-box-sizing:border-box; *behavior: url(styles/boxsizing.htc);
+		  -webkit-box-sizing:border-box; *behavior: url(styles/boxsizing.htc);
+		  box-sizing:border-box; *behavior: url(styles/boxsizing.htc);
+		  }
+			body {
+				width: 100%;
+				overflow: hidden;
+			}
+			.stripe {
+				width: 100%;
+				padding-top: 9px;
+				height: 25px;
+				background: #FF3C4A;
+				color: #EDE9DF;
+				text-transform: uppercase;
+				font-size: 16px;
+				letter-spacing: .165em;
+				overflow: hidden;
+				position: relative;
+			}
+			.wrapper {
+				width: 100%;
+				position: relative;
+			}
+			.marquee {
+				padding: 0px;
+				margin: 0px;
+				left: 0px;
+				position: absolute;
+				float: left;
+				width: 100000px;
+			}
+			.marquee li {
+				font-family: sans-serif;
+				font-weight: bold;
+				list-style: disc;
+				float: left;
+				margin-left: 30px;
+			}
+		</style>
+		<div class="stripe">
+			<div class="wrapper">
+				<ul class="marquee">
+					<li>
+						things
+					</li>
+					<li>
+						bits
+					</li>
+					<li>
+						odds
+					</li>
+					<li>
+						ends
+					</li>
+				</ul>
+			</div>
+		</div>
+		<script type="text/javascript">
+			var elementClassName = "marquee";
+			//class name of element to apply translations
+			var multiplier = 5;
+			//number of times to replicate text
+			var updatesPerSecond = 30//updatesPerSecond;
+			var moveDistancePerTick = 1;
+			//pixel distance to move per tick
+			var margin_left = 30;
+			/* Add any left-margin applied to list items here */
+
+			var contents = document.getElementsByClassName(elementClassName)[0].innerHTML;
+			for (var i = 0; i < multiplier - 1; i++) {
+				document.getElementsByClassName(elementClassName)[0].innerHTML += contents;
+			}
+
+			setInterval(function() {
+				var toMove = document.getElementsByClassName(elementClassName)[0];
+				if (parseInt(toMove.style.left.substring(0, toMove.style.left.length - 2), 10) * -1 >= (toMove.children[0].offsetWidth + margin_left)) {
+					var toAppend = toMove.children[0];
+					toMove.removeChild(toAppend);
+					toMove.appendChild(toAppend);
+					toMove.style.left = (moveDistancePerTick * -1) + "px";
+				} else {
+					toMove.style.left = (toMove.offsetLeft - moveDistancePerTick) + "px";
+				}
+			}, 1000 / updatesPerSecond);
+
+			function getOffset(el) {
+				var _x = 0;
+				var _y = 0;
+				while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
+					_x += el.offsetLeft - el.scrollLeft;
+					_y += el.offsetTop - el.scrollTop;
+					el = el.offsetParent;
+				}
+				return {
+					top : _y,
+					left : _x
+				};
+			}
+		</script>
+	</body>
+</html>
